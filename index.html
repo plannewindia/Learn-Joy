@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2D3A8C">
+<title>Learn Joy  Read Aloud</title>
+<style>
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:"Noto Sans Devanagari","Noto Sans",system-ui,Roboto,sans-serif;background:linear-gradient(180deg,#FFF3C4,#E8F4FF);color:#1F2A5C;font-size:18px;line-height:1.5;min-height:100vh;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#2D3A8C;color:#fff;padding:8px 84px 8px 12px;padding-top:calc(8px + env(safe-area-inset-top,0px));position:sticky;top:0;z-index:20}
+.top b{font-size:17px}.stats{display:flex;gap:8px;font-weight:700;font-size:15px;flex-wrap:wrap;justify-content:flex-end}
+.stats span{background:rgba(255,255,255,.18);padding:2px 9px;border-radius:14px}
+#app{max-width:820px;margin:0 auto;padding:10px 10px 90px}
+.avatar{position:fixed;top:calc(6px + env(safe-area-inset-top,0px));right:8px;width:68px;height:68px;border-radius:50%;border:3px solid #FFC93C;background:#CFE8FF;overflow:hidden;z-index:40;padding:0;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.3);transform-origin:center}
+.avatar svg{width:100%;height:100%;display:block}
+.bubble{position:fixed;left:50%;transform:translateX(-50%);width:min(88vw,420px);background:#fff;border:4px solid #FFC93C;border-radius:20px;padding:12px 14px;text-align:center;font-weight:700;z-index:45;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.bubble:after{content:"";position:absolute;top:-16px;left:50%;margin-left:-12px;border:12px solid transparent;border-bottom-color:#FFC93C;border-top:0}
+.tabs{display:flex;gap:6px;margin:6px 0}
+.tab{flex:1;min-height:52px;border:3px solid #2D3A8C;border-radius:14px;background:#fff;font:700 17px inherit;font-family:inherit;color:#2D3A8C;cursor:pointer}
+.tab.on{background:#2D3A8C;color:#fff}.tab.dn{border-color:#1FA463}
+.card{background:#fff;border:3px solid #2D3A8C;border-radius:18px;padding:14px;margin:10px 0}
+.lang{font-size:14px;font-weight:700;color:#5C6BC0;text-transform:uppercase}
+.big{font-size:46px;font-weight:800;line-height:1.2;word-break:break-word;margin:4px 0}
+.meaning{font-size:17px;color:#33406F;background:#EEF2FF;border-radius:10px;padding:6px 10px;margin:6px 0}
+.sent{font-size:26px;line-height:2;margin:6px 0}
+.sent .w{display:inline-block;padding:0 6px;margin:0 2px;border-radius:9px;transition:background .15s}
+.sent .w.ok{background:#C8F7D4;color:#0B6B2C}.sent .w.skip{background:#FFD6D6}.sent .w.cur{background:#FFE082;outline:2px solid #FFB300}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.btn{min-height:54px;padding:8px 16px;border:0;border-bottom:4px solid rgba(0,0,0,.25);border-radius:14px;font:700 17px inherit;font-family:inherit;background:#FFC93C;color:#1F2A5C;cursor:pointer}
+.btn.g{background:#1FA463;color:#fff}.btn.b{background:#3D5AFE;color:#fff}.btn.r{background:#E8453C;color:#fff}.btn.w{background:#fff;border:2px solid #2D3A8C}
+.btn[disabled]{opacity:.5}
+.mic.rec{background:#E8453C;color:#fff;animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 10px rgba(232,69,60,.25)}}
+.fb{min-height:30px;font-weight:700}.fb.ok{color:#0B6B2C}.fb.no{color:#C62828}
+.tick{display:inline-block;background:#1FA463;color:#fff;border-radius:50%;width:28px;height:28px;text-align:center;line-height:28px;font-size:16px;margin-left:6px}
+.pass{border-color:#1FA463;box-shadow:0 0 0 4px rgba(31,164,99,.25)}
+.dots span{display:inline-block;width:14px;height:14px;border-radius:50%;background:#ccc;margin:0 3px}.dots span.y{background:#1FA463}
+.warn{background:#FFF3CD;border:2px solid #E0A800;border-radius:12px;padding:8px 12px;margin:8px 0;font-size:15px}
+.modal{position:fixed;inset:0;background:rgba(10,10,50,.7);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.modal[hidden]{display:none}
+.sheet{background:#fff;width:min(100%,640px);max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.it{border:3px solid #ccd3f0;border-radius:14px;background:#F7F9FF;padding:6px;text-align:center;font-size:13px;font-weight:700;min-height:100px;cursor:pointer}
+.it.sel{border-color:#1FA463;background:#E6F9EE}.it svg{width:56px;height:56px;border-radius:50%;background:#CFE8FF}
+.sw{display:inline-block;width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #999;margin:4px;cursor:pointer}.sw.sel{box-shadow:0 0 0 4px #1FA463}
+input,select{width:100%;min-height:50px;font-size:18px;padding:6px 10px;border:3px solid #2D3A8C;border-radius:12px;font-family:inherit;margin:4px 0}
+#cf{position:fixed;inset:0;pointer-events:none;z-index:80}
+.banner{position:fixed;left:6%;right:6%;top:28%;background:#fff;border:5px solid #FFC93C;border-radius:24px;padding:16px;text-align:center;z-index:85;font-weight:800;font-size:24px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+
+/*    */
+.anim-slash{animation:slashAttack 0.4s ease-in-out 3}
+@keyframes slashAttack{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(-45deg) scale(1.3) translate(-10px, -10px)}100%{transform:rotate(0deg) scale(1)}}
+
+.anim-thrust{animation:spearThrust 0.35s ease-in-out 3}
+@keyframes spearThrust{0%{transform:translate(0,0)}50%{transform:translate(-25px,-25px) scale(1.2)}100%{transform:translate(0,0)}}
+
+.anim-block{animation:shieldPulse 0.5s ease-in-out 3}
+@keyframes shieldPulse{0%{transform:scale(1)}50%{transform:scale(1.4);filter:drop-shadow(0 0 8px #FFC107)}100%{transform:scale(1)}}
+
+.anim-shoot{animation:arrowShoot 0.4s ease-out 3}
+@keyframes arrowShoot{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(-15px,-15px) rotate(-15deg)}100%{transform:translate(0,0)}}
+
+@media (prefers-reduced-motion:reduce){.mic.rec{animation:none}}
+</style>
+</head>
+<body>
+<header class="top"><b> Learn Joy ú   </b><div class="stats"><span id="sx"> 0</span><span id="ss"> 0</span><span id="cl" title="Cloud backup"> </span></div></header>
+<button class="avatar" id="avatar" aria-label="Avatar / "></button>
+<div class="bubble" id="bubble" hidden></div>
+<main id="app"></main>
+<div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
+<canvas id="cf"></canvas>
+<script>
+'use strict';
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+const FB_VERSION = '10.12.2';
+const KEY = 'learnjoy_readaloud_v1';
+
+/* ---------- WORD BANKS ---------- */
+const WB0=(`mother,,|father,,|sister,,|brother,,|school,,|`+
+`book,,|pencil,,|bag,,|flower,,|bird,,|`+
+`cow,,|dog,,|cat,,|milk,,|roti,,|`+
+`fruit,,|apple,,|banana,,|mango,,|red,,|`+
+`blue,,|green,,|yellow,,|sun,,|moon,,|`+
+`star,,|rain,,|house,,|door,,|window,,`).split('|').map(s=>s.split(','));
+const WORDS=(`curious,,|honest,,|brave,,|kind,,|friend,,|`+
+`courage,,|discipline,,|knowledge,,|respect,,|effort,,|`+
+`patience,,|river,,|mountain,,|forest,,|fort,,|`+
+`festival,,|farmer,,|library,,|team,,|victory,,`).split('|').map(s=>s.split(','));
+const WB2=(`responsible,,|independent,,|opportunity,,|creativity,,|leadership,,|`+
+`patriotism,,|democracy,,|constitution,,|freedom,,|heritage,,`).split('|').map(s=>s.split(','));
+const SB0=(`My mother cooks tasty food.#    .#     |My father goes to work.#   .#     |My sister loves to sing.#   .#    |My brother plays cricket.#   .#    |I like my school.#   .#    |`+
+`This book has pictures.#   .#    |This pencil is red.#   .#   |My school bag is heavy.#   .#   |The flower smells sweet.#   .#   |The bird sings a song.#  .#   |`+
+`The cow gives milk.#  .#   |The dog is a loyal friend.#    .#   |The cat drinks milk.#  .#   |Drink milk every day.#  .#  |Grandma makes soft roti.#   .#    |`+
+`Eat a fruit every day.#   .#   |The apple is red.#  .#  |The monkey eats a banana.#  .#   |Mango is the king of fruits.#    .#    |The rose is red.#  .#  |`+
+`The sky is blue.#  .#  |Leaves are green.#  .#   |The sunflower is yellow.#  .#     |The sun gives us light.#   .#    |The moon shines at night.#  .#    |`+
+`A star twinkles in the sky.#  .#    |We love the rain.#  .#   |Our house is near the park.#   .#     |Please close the door.#   .#   |Open the window, please.# .# `).split('|').map(s=>s.split('#'));
+const SB1=(`I am curious about stars.#   .#      |Always be honest.#  .#  |The brave boy saved a puppy.#   .#     |Be kind to animals.#  .#    |My friend helps me.#    .#     |`+
+`He showed great courage.#   .#   |Discipline makes us great.#   .#    |Knowledge is power.#    .#     |Respect your teachers.#  .#   |Effort brings success.#   .#     |`+
+`Have patience while waiting.#  .#  |The river flows to the sea.#  .#     |The mountain is very tall.#   .#   |Many animals live in the forest.#   .#     |We visited Sinhagad fort.#   .#   |`+
+`Diwali is a festival of lights.#    .#    |The farmer works in the field.#   .#     |Books are available in the library.#  .#    |Our team won the match.#   .#    |Victory comes with hard work.#  .#    `).split('|').map(s=>s.split('#'));
+const SB2=(`A responsible student finishes homework.#    .#     |India became independent in 1947.#    .#    |Use every opportunity to learn.#   .#    |Creativity helps solve problems.#  .#     |Good leadership guides the team.#    .#      |`+
+`Patriotism means loving our country.#    .#     |India is the largest democracy.#     .#    |The Constitution guides our nation.#    .#      |Freedom comes with duties.#  .#      |Forts are our heritage.#     .#    `).split('|').map(s=>s.split('#'));
+
+const BANKS = [[WB0, SB0], [WORDS, SB1], [WB2, SB2]];
+const LG = [{k:'en',n:'English',sr:'en-IN',i:0},{k:'mr',n:'',sr:'mr-IN',i:1},{k:'hi',n:'',sr:'hi-IN',i:2}];
+const $ = id => document.getElementById(id);
+const p2 = n => n < 10 ? '0' + n : '' + n;
+const fmt = d => d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+const today = () => fmt(new Date());
+const mod = (a, b) => ((a % b) + b) % b;
+const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function addDays(s, n) { const a = s.split('-'); return fmt(new Date(+a[0], +a[1] - 1, +a[2] + n)); }
+
+/* ---------- State:     %  /  ---------- */
+const defAv = { skin:'#F2B88D', hair:'h0', hc:'#2B2118', outfit:'hero', acc:'crown', prop:'sword' };
+let S, cur = { lg: 0 }, cloud = 'off', fb = null, syncT = null;
+
+function load() {
+  let r = null; try { r = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  S = Object.assign({ v:2, name:'', cls:6, start:today(), xp:0, streak:0, best:0, last:'', days:{}, completed:[], avatar:{}, setup:false, updatedAt:0 }, r || {});
+  S.avatar = Object.assign({}, defAv, S.avatar);
+}
+function save() {
+  S.updatedAt = Date.now();
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  scheduleSync();
+}
+const lvl = () => { const c = +S.cls || 6; return c <= 4 ? 0 : c <= 7 ? 1 : 2; };
+const dayNo = () => { const a = today().split('-'), b = S.start.split('-'); return Math.round((Date.UTC(+a[0], +a[1] - 1, +a[2]) - Date.UTC(+b[0], +b[1] - 1, +b[2])) / 864e5) + 1; };
+function todayIdx() { return mod(dayNo() - 1, BANKS[lvl()][0].length); }
+function todayWords() { const a = BANKS[lvl()][0][todayIdx()]; return { en:a[0], mr:a[1], hi:a[2] }; }
+function todaySents() { const a = BANKS[lvl()][1][todayIdx()]; return { en:a[0], mr:a[1], hi:a[2] }; }
+function getDay() { const t = today(); return S.days[t] || (S.days[t] = { w:{ en:{a:0,b:0}, mr:{a:0,b:0}, hi:{a:0,b:0} }, done:0 }); }
+
+/* ----------   (, , )  ---------- */
+const ITEMS = {
+  prop:   [
+    ['sword',' '],
+    ['shield',' '],
+    ['spear',' '],
+    ['bow',' '],
+    ['wand','  '],
+    ['book',' '],
+    ['none',' ']
+  ],
+  outfit: [
+    ['hero',' '],
+    ['warrior','  '],
+    ['ninja',' '],
+    ['kurta',' '],
+    ['school',' '],
+    ['tee',' -']
+  ],
+  acc:    [
+    ['crown',' '],
+    ['band',' '],
+    ['cap',' '],
+    ['glasses',' '],
+    ['wizard','  '],
+    ['none',' ']
+  ],
+  hair:   [
+    ['h1',''],
+    ['h0',' '],
+    ['h2',' '],
+    ['h3',''],
+    ['h4','']
+  ]
+};
+const SKINS = ['#FFD7B5','#F2B88D','#D79A6B','#A86B45','#7A4A2B'];
+const HAIRC = ['#2B2118','#6D4C41','#E0A526','#C62828','#455A64'];
+const OUT = { tee:'#3D5AFE', kurta:'#FF9800', school:'#FFFFFF', warrior:'#D84315', hero:'#1E88E5', ninja:'#37474F' };
+const star = (cx, cy, r) => { let p = []; for (let i = 0; i < 10; i++) { const g = Math.PI * i / 5 - Math.PI / 2, q = i % 2 ? r * .45 : r; p.push((cx + q * Math.cos(g)).toFixed(1) + ',' + (cy + q * Math.sin(g)).toFixed(1)); } return p.join(' '); };
+
+function avatarSVG(a, weaponAnimClass) {
+  const sk = a.skin, hc = a.hc;
+  let o = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">';
+  if (a.outfit === 'hero') o += '<path d="M8 100 Q3 70 28 66 L72 66 Q97 70 92 100Z" fill="#B71C1C"/>';
+  if (a.outfit === 'warrior') o += '<path d="M8 100 Q4 65 30 65 L70 65 Q96 65 92 100Z" fill="#BF360C"/>';
+  o += '<rect x="44" y="58" width="12" height="14" fill="' + sk + '"/>';
+  o += '<path d="M10 100 Q12 70 50 68 Q88 70 90 100Z" fill="' + (OUT[a.outfit] || '#3D5AFE') + '"/>';
+  if (a.outfit === 'tee') o += '<path d="M41 69 Q50 80 59 69Z" fill="' + sk + '"/>';
+  if (a.outfit === 'kurta') o += '<path d="M50 69V100" stroke="#fff" stroke-width="2"/><circle cx="50" cy="78" r="1.6" fill="#fff"/><circle cx="50" cy="86" r="1.6" fill="#fff"/><path d="M41 69 Q50 78 59 69" fill="none" stroke="#fff" stroke-width="2"/>';
+  if (a.outfit === 'warrior') o += '<path d="M35 70 L50 85 L65 70" fill="none" stroke="#FFD54F" stroke-width="3"/><rect x="42" y="80" width="16" height="20" fill="#FFB300" opacity="0.6"/>';
+  if (a.outfit === 'school') o += '<path d="M41 69 L50 80 L59 69Z" fill="#E3F2FD"/><path d="M50 74 L46 90 L50 96 L54 90Z" fill="#1E40AF"/>';
+  if (a.outfit === 'hero') o += '<polygon points="' + star(50, 86, 9) + '" fill="#FFD54F"/>';
+  if (a.outfit === 'ninja') o += '<rect x="12" y="90" width="76" height="5" fill="#C62828"/>';
+  o += '<circle cx="28" cy="46" r="4.5" fill="' + sk + '"/><circle cx="72" cy="46" r="4.5" fill="' + sk + '"/><circle cx="50" cy="44" r="22" fill="' + sk + '"/>';
+  const H = {
+    h0:'<path d="M27 42 Q25 18 50 18 Q75 18 73 42 Q66 30 50 30 Q34 30 27 42Z" fill="' + hc + '"/>',
+    h1:'<path d="M26 44 L24 22 L35 30 L38 14 L47 27 L54 12 L60 27 L70 16 L70 32 L76 26 L74 44 Q66 30 50 30 Q34 30 26 44Z" fill="' + hc + '"/>',
+    h2:'<path d="M26 44 Q22 16 50 16 Q78 16 74 44 L78 78 Q72 82 70 72 L68 40 Q50 28 32 40 L30 72 Q28 82 22 78Z" fill="' + hc + '"/>',
+    h3:'<g fill="' + hc + '"><circle cx="30" cy="36" r="9"/><circle cx="40" cy="25" r="9"/><circle cx="52" cy="21" r="9"/><circle cx="64" cy="25" r="9"/><circle cx="72" cy="36" r="9"/></g>',
+    h4:'<path d="M27 42 Q25 18 50 18 Q75 18 73 42 Q66 30 50 30 Q34 30 27 42Z" fill="' + hc + '"/><circle cx="50" cy="12" r="9" fill="' + hc + '"/>'
+  };
+  o += H[a.hair] || H.h0;
+  o += '<circle cx="42" cy="45" r="2.8" fill="#222"/><circle cx="58" cy="45" r="2.8" fill="#222"/><circle cx="43" cy="44" r="1" fill="#fff"/><circle cx="59" cy="44" r="1" fill="#fff"/>';
+  o += '<path d="M42 54 Q50 62 58 54" fill="none" stroke="#8B3A2B" stroke-width="2.2" stroke-linecap="round"/><circle cx="36" cy="52" r="3.4" fill="#FF8A80" opacity=".45"/><circle cx="64" cy="52" r="3.4" fill="#FF8A80" opacity=".45"/>';
+  const A = {
+    glasses:'<g fill="none" stroke="#333" stroke-width="2"><circle cx="42" cy="45" r="7"/><circle cx="58" cy="45" r="7"/><path d="M49 45h2"/></g>',
+    band:'<rect x="27" y="30" width="46" height="6" rx="3" fill="#E53935"/><circle cx="73" cy="33" r="4" fill="#E53935"/>',
+    cap:'<path d="M26 38 Q28 14 50 14 Q72 14 74 38Z" fill="#1976D2"/><path d="M26 38 L8 42 Q16 32 30 33Z" fill="#0D47A1"/>',
+    crown:'<path d="M30 28 L34 10 L42 21 L50 6 L58 21 L66 10 L70 28Z" fill="#FFC107" stroke="#E69500" stroke-width="1.5"/><circle cx="50" cy="20" r="2.4" fill="#E53935"/><circle cx="38" cy="24" r="1.8" fill="#42A5F5"/><circle cx="62" cy="24" r="1.8" fill="#42A5F5"/>',
+    wizard:'<path d="M25 33 L50 0 L75 33Z" fill="#5E35B1"/><rect x="23" y="31" width="54" height="7" rx="3.5" fill="#4527A0"/><polygon points="' + star(50, 19, 5) + '" fill="#FFD54F"/>'
+  };
+  o += A[a.acc] || '';
+
+  //  / 
+  const animCls = weaponAnimClass ? ' class="' + weaponAnimClass + '" style="transform-origin: 75px 75px;"' : '';
+  const P = {
+    book:'<g' + animCls + '><rect x="64" y="70" width="26" height="19" rx="2" fill="#26A69A"/><rect x="66" y="72" width="22" height="15" fill="#E0F2F1"/><path d="M77 72v15" stroke="#26A69A" stroke-width="2"/></g>',
+    wand:'<g' + animCls + '><line x1="68" y1="94" x2="88" y2="64" stroke="#6D4C41" stroke-width="3.2" stroke-linecap="round"/><polygon points="' + star(90, 58, 7) + '" fill="#FFD54F"/></g>',
+    shield:'<g' + animCls + '><path d="M66 62 H92 V78 Q92 94 79 98 Q66 94 66 78Z" fill="#B0BEC5" stroke="#37474F" stroke-width="2.5"/><circle cx="79" cy="78" r="6" fill="#D32F2F"/><path d="M79 66 V92 M69 78 H89" stroke="#fff" stroke-width="2"/></g>',
+    sword:'<g' + animCls + '><path d="M82 32 L87 40 V82 H79 V40Z" fill="#ECEFF1" stroke="#455A64" stroke-width="1.8"/><line x1="83" y1="36" x2="83" y2="80" stroke="#90A4AE" stroke-width="1.5"/><rect x="71" y="80" width="24" height="5" rx="2" fill="#FFC107" stroke="#FFA000"/><rect x="81" y="85" width="4" height="9" fill="#5D4037"/><circle cx="83" cy="95" r="3" fill="#FFC107"/></g>',
+    spear:'<g' + animCls + '><line x1="84" y1="26" x2="84" y2="98" stroke="#8D6E63" stroke-width="3.5" stroke-linecap="round"/><polygon points="84,10 77,28 91,28" fill="#ECEFF1" stroke="#37474F" stroke-width="1.5"/><polygon points="84,14 80,26 88,26" fill="#B0BEC5"/><rect x="79" y="28" width="10" height="4" fill="#FFB300"/></g>',
+    bow:'<g' + animCls + '><path d="M72 40 Q94 66 72 94" fill="none" stroke="#6D4C41" stroke-width="3.5" stroke-linecap="round"/><line x1="72" y1="40" x2="72" y2="94" stroke="#eee" stroke-width="1.5"/><line x1="64" y1="67" x2="90" y2="67" stroke="#FFC107" stroke-width="2.2"/><polygon points="94,67 86,63 86,71" fill="#E53935"/></g>'
+  };
+  return o + (P[a.prop] || '') + '</svg>';
+}
+
+function drawAvatar(animCls) { $('avatar').innerHTML = avatarSVG(S.avatar, animCls); }
+
+/* ----------   (    ) ---------- */
+let invTab = 'prop';
+function openInv() {
+  const tabs = [['prop','  / '],['outfit',' '],['acc','  / '],['hair','   ']];
+  let h = '<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:20px">   (  )</b><button class="btn w" onclick="closeModal()"></button></div>';
+  h += '<div style="width:130px;height:130px;margin:8px auto;border-radius:50%;overflow:hidden;background:#CFE8FF;border:4px solid #FFC93C">' + avatarSVG(S.avatar) + '</div>';
+  h += '<div class="tabs">' + tabs.map(t => '<button class="tab' + (invTab === t[0] ? ' on' : '') + '" style="font-size:14px" onclick="invTab=\'' + t[0] + '\';openInv()">' + t[1] + '</button>').join('') + '</div>';
+  if (invTab === 'hair') {
+    h += '<div style="margin:6px 0"> : ' + SKINS.map(c => '<span class="sw' + (S.avatar.skin === c ? ' sel' : '') + '" style="background:' + c + '" onclick="setAv(\'skin\',\'' + c + '\')"></span>').join('') + '</div>';
+    h += '<div style="margin:6px 0"> : ' + HAIRC.map(c => '<span class="sw' + (S.avatar.hc === c ? ' sel' : '') + '" style="background:' + c + '" onclick="setAv(\'hc\',\'' + c + '\')"></span>').join('') + '</div>';
+  }
+  h += '<div class="grid">' + ITEMS[invTab].map(it => {
+    const on = S.avatar[invTab] === it[0], prev = Object.assign({}, S.avatar, { [invTab]: it[0] });
+    return '<div class="it' + (on ? ' sel' : '') + '" onclick="pick(\'' + invTab + '\',\'' + it[0] + '\')">' + avatarSVG(prev) + '<div>' + it[1] + '</div><div style="color:' + (on ? '#1FA463' : '#666') + '">' + (on ? ' ' : '') + '</div></div>';
+  }).join('') + '</div>';
+  $('sheet').innerHTML = h; $('modal').hidden = false;
+}
+function closeModal() { $('modal').hidden = true; }
+function setAv(k, v) { S.avatar[k] = v; save(); drawAvatar(); openInv(); }
+function pick(slot, id) { S.avatar[slot] = id; save(); drawAvatar(); openInv(); }
+
+/* ----------   ---------- */
+async function greet() {
+  const el = $('avatar'), b = $('bubble'), r = el.getBoundingClientRect(), W = innerWidth, H = innerHeight;
+  const dx = W / 2 - (r.left + r.width / 2), dy = H * .3 - (r.top + r.height / 2), sc = 2.4;
+  const T = (x, y, s) => 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
+  const w = todayWords(), name = S.name || '';
+  const msg = ' ' + name + '!         !';
+  const go = el.animate([{ transform: T(0, 0, 1) }, { transform: T(dx * .5, dy - 70, 1.7), offset: .35 }, { transform: T(dx, dy, sc), offset: .62 }, { transform: T(dx, dy - 26, sc), offset: .75 }, { transform: T(dx, dy, sc) }], { duration: 1300, easing: 'ease-out', fill: 'forwards' });
+  el.style.zIndex = 50; await go.finished;
+  b.style.top = (r.top + r.height / 2 + dy + (r.height * sc) / 2 + 20) + 'px'; b.textContent = msg; b.hidden = false;
+  speakText(msg, 'mr-IN');
+  await sleep(4000);
+  b.hidden = true;
+  const back = el.animate([{ transform: T(dx, dy, sc) }, { transform: T(dx * .4, dy * .4 - 30, 1.4), offset: .5 }, { transform: T(0, 0, 1) }], { duration: 900, easing: 'ease-in', fill: 'forwards' });
+  await back.finished; go.cancel(); back.cancel(); el.style.zIndex = '';
+}
+function hop() { $('avatar').animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-22px) scale(1.15)' }, { transform: 'translateY(0)' }], { duration: 600, iterations: 2 }); }
+
+/* ----------    (  ) ---------- */
+async function playWeaponAction() {
+  const p = S.avatar.prop;
+  const el = $('avatar'), r = el.getBoundingClientRect(), W = innerWidth, H = innerHeight;
+  const dx = W / 2 - (r.left + r.width / 2), dy = H * .32 - (r.top + r.height / 2), sc = 2.8;
+  const T = (x, y, s) => 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
+
+  //   
+  el.style.zIndex = 70;
+  const jump = el.animate([
+    { transform: T(0, 0, 1) },
+    { transform: T(dx, dy - 40, sc), offset: 0.7 },
+    { transform: T(dx, dy, sc) }
+  ], { duration: 900, easing: 'ease-out', fill: 'forwards' });
+  await jump.finished;
+
+  //     
+  if (p === 'sword') {
+    drawAvatar('anim-slash');
+    playWeaponSound('sword');
+    await sleep(400); playWeaponSound('sword');
+    await sleep(400); playWeaponSound('sword');
+  } else if (p === 'spear') {
+    drawAvatar('anim-thrust');
+    playWeaponSound('spear');
+    await sleep(350); playWeaponSound('spear');
+    await sleep(350); playWeaponSound('spear');
+  } else if (p === 'shield') {
+    drawAvatar('anim-block');
+    playWeaponSound('shield');
+    await sleep(500); playWeaponSound('shield');
+  } else if (p === 'bow') {
+    drawAvatar('anim-shoot');
+    playWeaponSound('bow');
+    await sleep(400); playWeaponSound('bow');
+    await sleep(400); playWeaponSound('bow');
+  } else {
+    drawAvatar();
+    hop();
+  }
+
+  await sleep(1400);
+  drawAvatar(); //  
+
+  //     
+  const back = el.animate([
+    { transform: T(dx, dy, sc) },
+    { transform: T(0, 0, 1) }
+  ], { duration: 800, easing: 'ease-in', fill: 'forwards' });
+  await back.finished;
+  jump.cancel(); back.cancel();
+  el.style.zIndex = '';
+}
+
+/* ----------     ---------- */
+let voices = [];
+function loadVoices() { if (window.speechSynthesis) voices = speechSynthesis.getVoices() || []; }
+function pickVoice(l) {
+  const pre = l.slice(0, 2); let b = null;
+  for (const v of voices) { const g = String(v.lang).replace('_', '-').toLowerCase(); if (g === l.toLowerCase()) return v; if (g.indexOf(pre) === 0 && !b) b = v; }
+  return b || (pre === 'mr' ? pickVoice('hi-IN') : null);
+}
+function speakText(t, l, rate) {
+  if (!window.speechSynthesis) return;
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t), v = pickVoice(l); u.lang = l; if (v) { u.voice = v; u.lang = v.lang; } u.rate = rate || .9; u.pitch = 1.2; speechSynthesis.speak(u); } catch (e) {}
+}
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, micOn = null, lastTr = null;
+function noSR() {
+  if (!noSR.shown) { noSR.shown = 1; alert('  Speech Recognition  .  Chrome .'); }
+}
+function startRec(lang, continuous, onRes, onEnd, onErr) {
+  stopRec(); try { speechSynthesis.cancel(); } catch (e) {}
+  const r = rec = new SR(); r.lang = lang; r.interimResults = true; r.continuous = continuous; r.maxAlternatives = 3;
+  r.onresult = e => { if (rec !== r) return; const all = []; for (let i = 0; i < e.results.length; i++) { const x = e.results[i]; all.push({ alts: Array.from(x).map(a => a.transcript), final: x.isFinal }); } onRes(all); };
+  r.onerror = e => { if (rec !== r) return; const m = { 'not-allowed':'   .', 'no-speech':'      .', 'network':'   .' }; onErr(m[e.error] || ('Error: ' + e.error)); };
+  r.onend = () => { if (rec === r) { rec = null; onEnd(); } };
+  try { r.start(); } catch (e) { onErr('  '); }
+}
+function stopRec() { if (rec) { const r = rec; rec = null; try { r.abort(); } catch (e) {} } }
+
+function norm(s) {
+  return String(s).toLowerCase().normalize('NFD').replace(/\u093c/g, '').normalize('NFC').replace(/[\u200c\u200d]/g, '')
+    .replace(/[-]/g, d => String(d.charCodeAt(0) - 0x966)).replace(//g, '').replace(/[.,!?;:"'()\-]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function lev(a, b) { const m = a.length, n = b.length; if (!m) return n; if (!n) return m; let p = Array.from({ length: n + 1 }, (_, i) => i); for (let i = 1; i <= m; i++) { const c = [i]; for (let j = 1; j <= n; j++) c[j] = Math.min(p[j] + 1, c[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); p = c; } return p[n]; }
+const sim = (a, b) => { if (a === b) return 1; const L = Math.max(a.length, b.length); return L ? 1 - lev(a, b) / L : 0; };
+const same = (a, b) => !!a && !!b && (a === b || (Math.min(a.length, b.length) > 3 && sim(a, b) >= .72));
+function wordMatch(heard, target) {
+  const t = norm(target), h = norm(heard); if (!h) return false;
+  if (t.indexOf(' ') >= 0) return sim(h, t) >= .70 || h.indexOf(t) >= 0;
+  return h.split(' ').some(x => same(x, t)) || same(h.replace(/ /g, ''), t);
+}
+function track(spoken, nw) {
+  const m = new Array(nw.length).fill(0); let p = 0;
+  for (const tk of spoken) for (let j = p; j < Math.min(p + 4, nw.length); j++) { if (same(tk, nw[j])) { for (let q = p; q < j; q++) if (!m[q]) m[q] = 2; m[j] = 1; p = j + 1; break; } }
+  return { m, p };
+}
+function paintSent(tr, n) {
+  for (let i = 0; i < n; i++) { const e = $('t' + i); if (e) e.className = 'w' + (tr.m[i] === 1 ? ' ok' : tr.m[i] === 2 ? ' skip' : i === tr.p ? ' cur' : ''); }
+}
+
+/* ----------    ---------- */
+const fbSet = (id, t, c) => { const e = $(id); if (e) { e.textContent = t; e.className = 'fb ' + (c || ''); } };
+function micState(w) {
+  micOn = w || null;
+  const a = $('micW'), b = $('micS');
+  if (a) { a.classList.toggle('rec', micOn === 'W'); a.textContent = micOn === 'W' ? ' ' : '  '; }
+  if (b) { b.classList.toggle('rec', micOn === 'S'); b.textContent = micOn === 'S' ? ' ' : '  '; }
+}
+function updStats() { $('sx').textContent = ' ' + S.xp; $('ss').textContent = ' ' + S.streak; }
+function render() {
+  stopRec(); micOn = null;
+  const D = getDay(), w = todayWords(), s = todaySents(), L = LG[cur.lg], k = L.k, st = D.w[k];
+  const done = LG.reduce((n, g) => n + D.w[g.k].a + D.w[g.k].b, 0);
+  const others = LG.filter(g => g.k !== k).map(g => g.n + ': <b>' + esc(w[g.k]) + '</b>').join(' ú ');
+  const words = s[k].split(/\s+/);
+  let h = '<div class="card" style="text-align:center"><b>  ú  ' + dayNo() + '</b> &nbsp; ' + (D.done ? '   !' : '(' + done + '/6)') + '<div class="dots">' + [].concat(...LG.map(g => [D.w[g.k].a, D.w[g.k].b])).map(x => '<span class="' + (x ? 'y' : '') + '"></span>').join('') + '</div></div>';
+  h += '<div class="tabs">' + LG.map((g, i) => '<button class="tab' + (cur.lg === i ? ' on' : '') + (D.w[g.k].a && D.w[g.k].b ? ' dn' : '') + '" onclick="cur.lg=' + i + ';render()">' + g.n + (D.w[g.k].a && D.w[g.k].b ? ' ' : '') + '</button>').join('') + '</div>';
+  if (!SR) h += '<div class="warn"> Speech Recognition  Chrome    "  " .</div>';
+  h += '<div class="card' + (st.a ? ' pass' : '') + '"><div class="lang">) ' + L.n + '    ' + (st.a ? '<span class="tick"></span>' : '') + '</div><div class="big">' + esc(w[k]) + '</div>' +
+    '<div class="meaning"> / Meaning: ' + others + '</div><div class="row"><button class="btn b" onclick="say(\'w\')"> </button><button class="btn mic" id="micW" onclick="micWord()">  </button>' + (SR ? '' : '<button class="btn w" onclick="passStep(\'a\')">  </button>') + '</div><div id="fbW" class="fb"></div></div>';
+  h += '<div class="card' + (st.b ? ' pass' : '') + '"><div class="lang">) ' + L.n + '    ' + (st.b ? '<span class="tick"></span>' : '') + '</div><div class="sent" id="sentBox">' +
+    words.map((t, i) => '<span class="w' + (st.b ? ' ok' : '') + '" id="t' + i + '">' + esc(t) + '</span>').join(' ') + '</div>' +
+    '<div class="row"><button class="btn b" onclick="say(\'s\')"> </button><button class="btn mic" id="micS" onclick="micSent()"' + (st.a || !SR ? '' : ' disabled') + '>  </button>' + (SR ? '' : '<button class="btn w" onclick="passStep(\'b\')">  </button>') + '</div>' +
+    '<div class="hint" style="font-size:14px;color:#555">' + (st.a ? '    .' : '   ,  .') + '</div><div id="fbS" class="fb"></div></div>';
+  h += '<div class="row"><button class="btn w" onclick="openInv()">   </button><button class="btn w" onclick="openSettings()"> </button><button class="btn w" onclick="greet()"> , !</button></div>';
+  $('app').innerHTML = h; updStats();
+}
+function say(w) { const L = LG[cur.lg]; speakText(w === 'w' ? todayWords()[L.k] : todaySents()[L.k], L.sr, .85); }
+
+function micWord() {
+  if (!SR) return noSR();
+  if (micOn === 'W') { stopRec(); micState(); return; }
+  const L = LG[cur.lg], w = todayWords()[L.k]; let ok = false, err = '';
+  micState('W'); fbSet('fbW', ' ', '');
+  startRec(L.sr, false, all => {
+    fbSet('fbW', ': ' + all.map(r => r.alts[0]).join(' '), '');
+    if (!ok && all.some(r => r.alts.some(a => wordMatch(a, w)))) { ok = true; stopRec(); micState(); passStep('a'); }
+  }, () => { micState(); if (!ok && !err) fbSet('fbW', '     "' + w + '"  ', 'no'); },
+  m => { err = m; micState(); fbSet('fbW', m, 'no'); });
+}
+function micSent() {
+  if (!SR) return noSR();
+  const L = LG[cur.lg], words = todaySents()[L.k].split(/\s+/), nw = words.map(norm), n = nw.length;
+  if (micOn === 'S') { stopRec(); micState(); evalSent(lastTr || { m: [], p: 0 }, n); return; }
+  let ok = false, err = ''; lastTr = { m: new Array(n).fill(0), p: 0 };
+  paintSent(lastTr, n); micState('S'); fbSet('fbS', '  ', '');
+  startRec(L.sr, true, all => {
+    lastTr = track(norm(all.map(r => r.alts[0]).join(' ')).split(' ').filter(Boolean), nw);
+    paintSent(lastTr, n);
+    if (!ok && lastTr.p >= n) { ok = true; stopRec(); micState(); evalSent(lastTr, n); }
+  }, () => { micState(); if (!ok && !err) { ok = true; evalSent(lastTr, n); } },
+  m => { err = m; micState(); fbSet('fbS', m, 'no'); });
+}
+function evalSent(tr, n) {
+  const good = tr.m.filter(x => x === 1).length;
+  if (good / n >= .7) passStep('b');
+  else { paintSent(tr, n); fbSet('fbS', ' ' + good + '/' + n + '     ', 'no'); }
+}
+
+function passStep(which) {
+  const D = getDay(), k = LG[cur.lg].k;
+  if (!D.w[k][which]) { D.w[k][which] = 1; S.xp += which === 'a' ? 10 : 15; save(); }
+  chime(); hop(); render();
+  fbSet(which === 'a' ? 'fbW' : 'fbS', ' ! !', 'ok');
+  if (LG.every(g => D.w[g.k].a && D.w[g.k].b)) { if (!D.done) setTimeout(completeDay, 700); return; }
+  if (D.w[k].a && D.w[k].b) { const nx = LG.findIndex(g => !(D.w[g.k].a && D.w[g.k].b)); if (nx >= 0) setTimeout(() => { cur.lg = nx; render(); }, 1400); }
+}
+
+function completeDay() {
+  const D = getDay(), t = today(); if (D.done) return;
+  D.done = 1; S.xp += 50;
+  S.streak = S.last === addDays(t, -1) ? S.streak + 1 : (S.last === t ? S.streak : 1); S.last = t; if (S.streak > S.best) S.best = S.streak;
+  const key = todayWords().en; if (S.completed.indexOf(key) < 0) S.completed.push(key);
+  save(); render(); celebrate();
+}
+
+/* ----------     ---------- */
+let AC = null;
+function ac() { try { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) {} return AC; }
+function tone(f, t0, d, type, g) { const a = ac(); if (!a) return; const o = a.createOscillator(), n = a.createGain(), t = a.currentTime + t0; o.type = type || 'triangle'; o.frequency.value = f; n.gain.setValueAtTime(.0001, t); n.gain.exponentialRampToValueAtTime(g || .22, t + .02); n.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(n); n.connect(a.destination); o.start(t); o.stop(t + d + .05); }
+const chime = () => { tone(660, 0, .16); tone(880, .14, .28); };
+const fanfare = () => { [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, i * .16, .28, 'square', .14)); tone(1568, 1.2, .9, 'triangle', .2); };
+
+function playWeaponSound(type) {
+  const a = ac(); if (!a) return;
+  if (type === 'sword') {
+    //    (Swoosh)
+    tone(900, 0, 0.15, 'sine', 0.3);
+    tone(400, 0.05, 0.2, 'triangle', 0.25);
+  } else if (type === 'spear') {
+    //   (Heavy thrust)
+    tone(220, 0, 0.25, 'sawtooth', 0.3);
+    tone(600, 0.08, 0.15, 'sine', 0.2);
+  } else if (type === 'shield') {
+    //   (Metal clank)
+    tone(450, 0, 0.3, 'square', 0.2);
+    tone(300, 0.05, 0.4, 'triangle', 0.25);
+  } else if (type === 'bow') {
+    //    (Whistle + Twang)
+    tone(350, 0, 0.08, 'sawtooth', 0.25);
+    tone(850, 0.06, 0.25, 'sine', 0.3);
+  }
+}
+
+let cfOn = 0, parts = [], endAt = 0, bt = 0;
+const COL = ['#FFC93C', '#FF5D5D', '#2BB673', '#5C7CFF', '#FF7AC6', '#ffffff'], rcol = () => COL[Math.floor(Math.random() * COL.length)];
+
+async function celebrate() {
+  const c = $('cf'); c.width = innerWidth; c.height = innerHeight; parts = []; cfOn = 1; endAt = Date.now() + 6500; bt = 0;
+  fanfare();
+  loop();
+
+  //     
+  await playWeaponAction();
+
+  const weaponName = (ITEMS.prop.find(x => x[0] === S.avatar.prop) || [])[1] || '';
+  const b = document.createElement('div'); b.className = 'banner'; b.id = 'bn';
+  b.innerHTML = '  ' + esc(S.name || '') + '!<br>   !<br><div style="font-size:18px;color:#D84315;margin:8px 0"> ' + weaponName + '  ! </div><div style="font-size:17px;margin:8px 0">+50  &nbsp;  ' + S.streak + ' </div><button class="btn g" onclick="this.parentNode.remove();openInv()">  </button> <button class="btn w" onclick="this.parentNode.remove()"> </button>';
+  document.body.appendChild(b);
+}
+
+function burst(x, y) { const c = rcol(); for (let i = 0; i < 40; i++) { const a = 6.283 * i / 40, v = 2 + Math.random() * 4; parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, l: 55 + Math.random() * 30, c, s: 3, g: .07 }); } }
+function loop() {
+  const c = $('cf'), x = c.getContext('2d'), now = Date.now(); x.clearRect(0, 0, c.width, c.height);
+  if (cfOn && now < endAt) { if (now - bt > 450) { bt = now; burst(c.width * (.1 + Math.random() * .8), c.height * (.1 + Math.random() * .4)); } parts.push({ x: Math.random() * c.width, y: -10, vx: Math.random() * 2 - 1, vy: 2 + Math.random() * 2, l: 240, c: rcol(), s: 8, g: 0 }); }
+  for (let i = parts.length - 1; i >= 0; i--) { const p = parts[i]; p.x += p.vx; p.y += p.vy; p.vy += p.g; p.l--; if (p.l <= 0 || p.y > c.height + 20) { parts.splice(i, 1); continue; } x.fillStyle = p.c; x.fillRect(p.x, p.y, p.s, p.s); }
+  if ((cfOn && now < endAt) || parts.length) requestAnimationFrame(loop); else cfOn = 0;
+}
+
+/* ----------  ---------- */
+function openSettings(first) {
+  const cl = { off:' Firebase   (   )', ok:'   ', sync:'   ', err:' Firebase   ' }[cloud];
+  $('sheet').innerHTML = '<b style="font-size:20px"> </b>' + (first ? '<div class="warn">   .</div>' : '') +
+    ' / Name<input id="sn" value="' + esc(S.name) + '" placeholder=". "> / Class<select id="sc2">' + Array.from({ length: 10 }, (_, i) => '<option value="' + (i + 1) + '"' + (+S.cls === i + 1 ? ' selected' : '') + '> ' + (i + 1) + '</option>').join('') + '</select>' +
+    '<button class="btn g" style="width:100%;margin-top:8px" onclick="saveSettings()"> Save</button><hr><div class="fb">' + cl + '</div>' +
+    '<div class="row"><button class="btn b" onclick="fbGoogle()">Google  -</button><button class="btn w" onclick="fbPush()">  </button></div>' +
+    '<div class="row"><button class="btn r" onclick="resetAll()">  </button><button class="btn w" onclick="closeModal()"></button></div>';
+  $('modal').hidden = false;
+}
+function saveSettings() { S.name = $('sn').value.trim() || ''; S.cls = +$('sc2').value; const first = !S.setup; S.setup = true; save(); closeModal(); render(); if (first) setTimeout(greet, 400); }
+function resetAll() { if (confirm('   ?')) { localStorage.removeItem(KEY); load(); save(); drawAvatar(); closeModal(); render(); } }
+
+/* ---------- Firebase  ---------- */
+function setCloud(c) { cloud = c; $('cl').textContent = { off:' ', ok:' ', sync:' ', err:' ' }[c]; }
+function scheduleSync() { if (!fb || !fb.uid) return; clearTimeout(syncT); syncT = setTimeout(fbPush, 1500); }
+async function fbInit() {
+  if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'YOUR_API_KEY') { setCloud('off'); return; }
+  try {
+    const base = 'https://www.gstatic.com/firebasejs/' + FB_VERSION + '/';
+    const [A, F, U] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-firestore.js'), import(base + 'firebase-auth.js')]);
+    const app = A.initializeApp(firebaseConfig), auth = U.getAuth(app); let db;
+    try { db = F.initializeFirestore(app, { localCache: F.persistentLocalCache() }); } catch (e) { db = F.getFirestore(app); }
+    fb = { auth, db, doc: F.doc, getDoc: F.getDoc, setDoc: F.setDoc, U, uid: null };
+    await new Promise(res => U.onAuthStateChanged(auth, u => { if (u) { fb.uid = u.uid; res(); } else U.signInAnonymously(auth).catch(res); }));
+    if (!fb.uid) { setCloud('err'); return; }
+    await fbPull(); setCloud('ok'); drawAvatar(); render();
+  } catch (e) { setCloud('err'); }
+}
+async function fbPush() {
+  if (!fb || !fb.uid) return;
+  try { setCloud('sync'); await fb.setDoc(fb.doc(fb.db, 'children', fb.uid), { data: JSON.stringify(S), updatedAt: S.updatedAt, name: S.name || '', streak: S.streak, xp: S.xp }, { merge: true }); setCloud('ok'); }
+  catch (e) { setCloud('err'); }
+}
+async function fbPull() {
+  const snap = await fb.getDoc(fb.doc(fb.db, 'children', fb.uid));
+  if (snap.exists()) {
+    let rs = null; try { rs = JSON.parse(snap.data().data); } catch (e) {}
+    if (rs) {
+      S = Object.assign({}, S, rs);
+      S.avatar = Object.assign({}, defAv, S.avatar);
+      try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+    }
+  }
+}
+async function fbGoogle() {
+  if (!fb) { alert(' firebaseConfig .'); return; }
+  try { const r = await fb.U.signInWithPopup(fb.auth, new fb.U.GoogleAuthProvider()); fb.uid = r.user.uid; await fbPull(); setCloud('ok'); drawAvatar(); render(); closeModal(); }
+  catch (e) { alert('Google -  : ' + e.message); }
+}
+
+/* ----------    ---------- */
+load(); drawAvatar(); render(); loadVoices();
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = loadVoices;
+$('avatar').onclick = openInv;
+$('modal').onclick = e => { if (e.target === $('modal')) closeModal(); };
+document.addEventListener('touchstart', ac, { once: true });
+fbInit();
+if (!S.setup) openSettings(true); else window.addEventListener('load', () => setTimeout(greet, 500));
+</script>
+</body>
+</html>
